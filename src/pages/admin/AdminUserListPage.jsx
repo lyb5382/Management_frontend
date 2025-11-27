@@ -23,6 +23,7 @@ const AdminUserListPage = () => {
       setLoading(true);
       const data = await adminUserApi.getUsers({
         ...filters,
+        search: filters.keyword,
         page: currentPage,
       });
       setUsers(data.users || []);

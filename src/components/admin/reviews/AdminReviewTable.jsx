@@ -61,13 +61,22 @@ const AdminReviewTable = ({
         </button>
 
         {review?.reportCount > 0 && (
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => onReportAction?.(review.id, "resolve")}
-          >
-            신고 처리
-          </button>
+          <>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => onReportAction?.(review.id, "resolve")}
+            >
+              신고 처리
+            </button>
+            <button
+              type="button"
+              className="btn btn-warning"
+              onClick={() => onReportAction?.(review.id, "delete")}
+            >
+              신고삭제
+            </button>
+          </>
         )}
 
         <button

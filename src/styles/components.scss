@@ -137,6 +137,14 @@
   z-index: 9999;
 }
 
+// 강제 포인터 이벤트 규칙: 입력이 눌리지 않는 문제 진단/우회
+.admin-content input,
+.admin-content textarea,
+.admin-content select,
+.admin-content button {
+  pointer-events: auto !important;
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);

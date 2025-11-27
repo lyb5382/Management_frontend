@@ -15,14 +15,34 @@ const AdminBookingListPage = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        const params = {
+          ...filters,
+          search: filters.keyword,
+          page: currentPage,
+        };
+        console.log("Booking API params:", params); // DEBUG
+        const data = await adminBookingApi.getBookings(params);
+        console.log("Booking API response:", data); // DEBUG
+        setBookings(data.bookings || []);
+        setTotalPages(data.totalPages || 1);
+      } catch (err) {
+        setError(err.message || "데이터를 불러오는데 실패했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchBookings();
-  }, [currentPage]);
+  }, [filters, currentPage]);
 
-  const fetchBookings = async () => {
+  const handleRefresh = async () => {
     try {
       setLoading(true);
       const data = await adminBookingApi.getBookings({
         ...filters,
+        search: filters.keyword,
         page: currentPage,
       });
       setBookings(data.bookings || []);
@@ -40,13 +60,12 @@ const AdminBookingListPage = () => {
 
   const handleSearch = () => {
     setCurrentPage(1);
-    fetchBookings();
   };
 
   const handleStatusChange = async (bookingId, status) => {
     try {
       await adminBookingApi.updateBookingStatus(bookingId, status);
-      fetchBookings();
+      handleRefresh();
     } catch (err) {
       alert(err.message || "상태 변경에 실패했습니다.");
     }
@@ -58,7 +77,7 @@ const AdminBookingListPage = () => {
 
     try {
       await adminBookingApi.cancelBooking(bookingId, reason);
-      fetchBookings();
+      handleRefresh();
     } catch (err) {
       alert(err.message || "취소에 실패했습니다.");
     }

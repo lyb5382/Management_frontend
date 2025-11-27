@@ -22,6 +22,12 @@ export const adminReviewApi = {
     return axiosClient.delete(`/admin/reviews/${reviewId}`);
   },
 
+  // 리뷰 상태 변경 (숨기기/노출)
+  updateReviewStatus: (reviewId, status) => {
+    if (USE_MOCK) return mockReviewApi.updateReviewStatus?.(reviewId, status) || Promise.resolve();
+    return axiosClient.put(`/admin/reviews/${reviewId}/status`, { status });
+  },
+
   // 신고된 리뷰 목록 조회
   getReportedReviews: (params) => {
     if (USE_MOCK) return mockReviewApi.getReportedReviews(params);

@@ -110,21 +110,32 @@ export const mockHotelApi = {
 
   deleteHotel: async (hotelId) => {
     await delay();
-    return createResponse({ message: "Hotel deleted" });
+    const index = mockHotels.findIndex((h) => h.id === parseInt(hotelId));
+    if (index !== -1) {
+      const deleted = mockHotels.splice(index, 1)[0];
+      return createResponse({ message: "Hotel deleted", hotel: deleted });
+    }
+    throw new Error("Hotel not found");
   },
 
   approveHotel: async (hotelId) => {
     await delay();
     const hotel = mockHotels.find((h) => h.id === parseInt(hotelId));
-    if (hotel) hotel.status = "approved";
-    return createResponse({ message: "Hotel approved" });
+    if (hotel) {
+      hotel.approvalStatus = "approved";
+      return createResponse({ message: "Hotel approved", hotel });
+    }
+    throw new Error("Hotel not found");
   },
 
   rejectHotel: async (hotelId, reason) => {
     await delay();
     const hotel = mockHotels.find((h) => h.id === parseInt(hotelId));
-    if (hotel) hotel.status = "rejected";
-    return createResponse({ message: "Hotel rejected" });
+    if (hotel) {
+      hotel.approvalStatus = "rejected";
+      return createResponse({ message: "Hotel rejected", hotel });
+    }
+    throw new Error("Hotel not found");
   },
 };
 
@@ -132,17 +143,26 @@ export const mockHotelApi = {
 export const mockBookingApi = {
   getBookings: async (params = {}) => {
     await delay();
+    console.log("mockApi getBookings params:", params); // DEBUG
     let filtered = [...mockBookings];
 
     if (params.search) {
+      const search = params.search.toLowerCase();
       filtered = filtered.filter(
         (b) =>
-          b.id.includes(params.search) ||
-          b.customerName.toLowerCase().includes(params.search.toLowerCase())
+          b.id.toLowerCase().includes(search) ||
+          b.guestName.toLowerCase().includes(search) ||
+          b.hotelName.toLowerCase().includes(search) ||
+          (b.hotelName + ' ' + b.roomType).toLowerCase().includes(search)
       );
     }
-    if (params.status) {
+    if (params.paymentStatus && params.paymentStatus !== "") {
+      filtered = filtered.filter((b) => b.paymentStatus === params.paymentStatus);
+    }
+    if (params.status && params.status !== "") {
+      console.log("Filtering by status:", params.status); // DEBUG
       filtered = filtered.filter((b) => b.status === params.status);
+      console.log("After status filter:", filtered.length); // DEBUG
     }
 
     return createResponse({
@@ -186,14 +206,24 @@ export const mockUserApi = {
     let filtered = [...mockUsers];
 
     if (params.search) {
+      const search = params.search.toLowerCase();
       filtered = filtered.filter(
         (u) =>
-          u.name.toLowerCase().includes(params.search.toLowerCase()) ||
-          u.email.toLowerCase().includes(params.search.toLowerCase())
+          u.name.toLowerCase().includes(search) ||
+          u.email.toLowerCase().includes(search) ||
+          u.phone.toLowerCase().includes(search) ||
+          (u.type ? u.type.toLowerCase().includes(search) : false) ||
+          (u.level ? u.level.toLowerCase().includes(search) : false)
       );
     }
     if (params.type) {
       filtered = filtered.filter((u) => u.type === params.type);
+    }
+    if (params.role) {
+      filtered = filtered.filter((u) => u.role === params.role);
+    }
+    if (params.level) {
+      filtered = filtered.filter((u) => u.level === params.level);
     }
     if (params.status) {
       filtered = filtered.filter((u) => u.status === params.status);
@@ -222,7 +252,12 @@ export const mockUserApi = {
 
   deleteUser: async (userId) => {
     await delay();
-    return createResponse({ message: "User deleted" });
+    const index = mockUsers.findIndex((u) => u.id === parseInt(userId));
+    if (index !== -1) {
+      const deleted = mockUsers.splice(index, 1)[0];
+      return createResponse({ message: "User deleted", user: deleted });
+    }
+    throw new Error("User not found");
   },
 
   updateUserStatus: async (userId, status) => {
@@ -281,7 +316,20 @@ export const mockReviewApi = {
 
   deleteReview: async (reviewId) => {
     await delay();
-    return createResponse({ message: "Review deleted" });
+    const index = mockReviews.findIndex((r) => r.id === parseInt(reviewId));
+    if (index !== -1) {
+      const deleted = mockReviews.splice(index, 1)[0];
+      return createResponse({ message: "Review deleted", review: deleted });
+    }
+    throw new Error("Review not found");
+  },
+
+  updateReviewStatus: async (reviewId, status) => {
+    await delay();
+    const review = mockReviews.find((r) => r.id === parseInt(reviewId));
+    if (!review) throw new Error("Review not found");
+    review.status = status;
+    return createResponse({ message: "Review status updated", review });
   },
 
   getReportedReviews: async (params = {}) => {
@@ -296,7 +344,19 @@ export const mockReviewApi = {
 
   handleReport: async (reviewId, action) => {
     await delay();
-    return createResponse({ message: "Report handled" });
+    const review = mockReviews.find((r) => r.id === parseInt(reviewId));
+    if (!review) throw new Error("Review not found");
+    
+    if (action === "resolve") {
+      review.reportCount = 0;
+      review.reportStatus = "resolved";
+      review.status = "published";
+    } else if (action === "delete") {
+      review.reportCount = 0;
+      review.reportStatus = "clean";
+    }
+    
+    return createResponse({ message: "Report handled", review });
   },
 };
 

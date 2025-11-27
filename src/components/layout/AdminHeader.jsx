@@ -8,7 +8,14 @@ const AdminHeader = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate("/admin/login");
+      // navigate with replace so back button won't return to protected routes
+      navigate("/admin/login", { replace: true });
+      // push a fresh entry to history to further prevent navigating back into app
+      try {
+        window.history.pushState(null, "", "/admin/login");
+      } catch (e) {
+        /* ignore */
+      }
     } catch (error) {
       console.error("Logout failed:", error);
     }

@@ -8,14 +8,26 @@ const AdminCouponCreatePage = () => {
     try {
       // TODO: API 연결
       alert("쿠폰이 생성되었습니다.");
-      navigate("/admin/coupons");
+      navigate("/admin/coupons", { replace: true });
+      try {
+        window.history.pushState(null, "", "/admin/coupons");
+      } catch (e) {
+        // ignore
+      }
     } catch (err) {
       alert(err.message || "생성에 실패했습니다.");
     }
   };
 
-  const handleCancel = () => {
-    navigate("/admin/coupons");
+  const handleCancel = (e) => {
+    if (e && typeof e.preventDefault === "function") e.preventDefault();
+    console.log("AdminCouponCreatePage: cancel clicked, navigating to /admin/coupons");
+    navigate("/admin/coupons", { replace: true });
+    try {
+      window.history.pushState(null, "", "/admin/coupons");
+    } catch (e) {
+      // ignore
+    }
   };
 
   return (

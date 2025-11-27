@@ -28,10 +28,11 @@ const APPROVAL_OPTIONS = [
   { value: "rejected", label: "거부" },
 ];
 
-const AdminHotelForm = ({ hotel = {}, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({ ...DEFAULT_FORM, ...hotel });
+const AdminHotelForm = ({ hotel = null, onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState({ ...DEFAULT_FORM, ...(hotel || {}) });
 
   useEffect(() => {
+    if (!hotel) return;
     setFormData({ ...DEFAULT_FORM, ...hotel });
   }, [hotel]);
 
@@ -54,7 +55,7 @@ const AdminHotelForm = ({ hotel = {}, onSubmit, onCancel }) => {
   };
 
   const handleReset = () => {
-    setFormData({ ...DEFAULT_FORM, ...hotel });
+    setFormData({ ...DEFAULT_FORM });
   };
 
   return (

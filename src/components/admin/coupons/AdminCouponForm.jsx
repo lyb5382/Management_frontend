@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const DEFAULT_FORM = {
   name: "",
@@ -20,12 +20,16 @@ const STATUS_OPTIONS = [
   { value: "expired", label: "만료" },
 ];
 
-const AdminCouponForm = ({ coupon = {}, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({ ...DEFAULT_FORM, ...coupon });
+const AdminCouponForm = ({ coupon = null, onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState({ ...DEFAULT_FORM, ...(coupon || {}) });
+  const firstInputRef = useRef(null);
 
   useEffect(() => {
+    if (!coupon) return;
     setFormData({ ...DEFAULT_FORM, ...coupon });
   }, [coupon]);
+
+  // removed auto-focus effect to avoid possible render loops in strict/dev mode
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -48,7 +52,7 @@ const AdminCouponForm = ({ coupon = {}, onSubmit, onCancel }) => {
   };
 
   const handleReset = () => {
-    setFormData({ ...DEFAULT_FORM, ...coupon });
+    setFormData({ ...DEFAULT_FORM });
   };
 
   return (
@@ -59,6 +63,7 @@ const AdminCouponForm = ({ coupon = {}, onSubmit, onCancel }) => {
         <input
           id="couponName"
           name="name"
+          ref={firstInputRef}
           value={formData.name}
           onChange={handleChange}
           placeholder="쿠폰 이름을 입력하세요"

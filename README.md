@@ -128,7 +128,3 @@ const { adminInfo, login, logout } = useAdminAuth();
 라우팅은 `react-router-dom`을 사용하며, `src/router/adminRoutes.jsx`에서 관리됩니다.
 
 ## 라이선스
-
-MIT
-
-## 브랜치 추가

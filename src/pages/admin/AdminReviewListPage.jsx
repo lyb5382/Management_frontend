@@ -54,6 +54,35 @@ const AdminReviewListPage = () => {
     }
   };
 
+  const handleToggleVisibility = async (reviewId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === "hidden" ? "published" : "hidden";
+      await adminReviewApi.updateReviewStatus?.(reviewId, newStatus) || 
+        Promise.resolve(); // fallback if not implemented in API
+      fetchReviews();
+    } catch (err) {
+      alert(err.message || "상태 변경에 실패했습니다.");
+    }
+  };
+
+  const handleReportAction = async (reviewId, action) => {
+    try {
+      let message = "신고 처리";
+      if (action === "resolve") {
+        message = "신고를 처리하시겠습니까?";
+      } else if (action === "delete") {
+        message = "신고를 삭제하시겠습니까?";
+      }
+      
+      if (!confirm(message)) return;
+
+      await adminReviewApi.handleReport(reviewId, action);
+      fetchReviews();
+    } catch (err) {
+      alert(err.message || "신고 처리에 실패했습니다.");
+    }
+  };
+
   if (loading) return <Loader fullScreen />;
   if (error) return <ErrorMessage message={error} onRetry={fetchReviews} />;
 
@@ -69,7 +98,12 @@ const AdminReviewListPage = () => {
         onSearch={handleSearch}
       />
 
-      <AdminReviewTable reviews={reviews} onDelete={handleDelete} />
+      <AdminReviewTable 
+        reviews={reviews} 
+        onDelete={handleDelete}
+        onToggleVisibility={handleToggleVisibility}
+        onReportAction={handleReportAction}
+      />
 
       <Pagination
         currentPage={currentPage}
