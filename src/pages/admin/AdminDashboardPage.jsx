@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import AdminStatsCards from "../../components/admin/dashboard/AdminStatsCards";
 import AdminChartArea from "../../components/admin/dashboard/AdminChartArea";
 import AdminRecentTable from "../../components/admin/dashboard/AdminRecentTable";
-import { adminStatsApi } from "../../api/adminStatsApi";
+import adminStatsApi from "../../api/adminStatsApi";
 import Loader from "../../components/common/Loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
 

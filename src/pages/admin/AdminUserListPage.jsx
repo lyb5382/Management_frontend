@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import AdminUserFilter from "../../components/admin/users/AdminUserFilter";
 import AdminUserTable from "../../components/admin/users/AdminUserTable";
 import Pagination from "../../components/common/Pagination";
-import { adminUserApi } from "../../api/adminUserApi";
+import adminUserApi from "../../api/adminUserApi";
 import Loader from "../../components/common/Loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
 

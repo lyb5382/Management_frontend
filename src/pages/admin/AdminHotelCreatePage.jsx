@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import AdminHotelForm from "../../components/admin/hotels/AdminHotelForm";
-import { adminHotelApi } from "../../api/adminHotelApi";
+import adminHotelApi from "../../api/adminHotelApi";
 
 const AdminHotelCreatePage = () => {
   const navigate = useNavigate();

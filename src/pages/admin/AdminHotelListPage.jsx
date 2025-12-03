@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import AdminHotelFilter from "../../components/admin/hotels/AdminHotelFilter";
 import AdminHotelTable from "../../components/admin/hotels/AdminHotelTable";
 import Pagination from "../../components/common/Pagination";
-import { adminHotelApi } from "../../api/adminHotelApi";
 import Loader from "../../components/common/Loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
+import adminHotelApi from "../../api/adminHotelApi"; 
 
 const AdminHotelListPage = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const AdminHotelListPage = () => {
 
   useEffect(() => {
     fetchHotels();
-  }, [currentPage]);
+  }, [currentPage, filters]); // 필터 바뀌면 바로 검색되게 의존성 추가
 
   const fetchHotels = async () => {
     try {
@@ -38,6 +38,7 @@ const AdminHotelListPage = () => {
 
   const handleFilterChange = (newFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
+    setCurrentPage(1); // 필터 바뀌면 1페이지로 리셋
   };
 
   const handleSearch = () => {
@@ -45,37 +46,22 @@ const AdminHotelListPage = () => {
     fetchHotels();
   };
 
-  const handleApprove = async (hotelId) => {
-    try {
-      await adminHotelApi.approveHotel(hotelId);
-      fetchHotels();
-    } catch (err) {
-      alert(err.message || "승인에 실패했습니다.");
-    }
-  };
-
-  const handleReject = async (hotelId) => {
-    const reason = prompt("거부 사유를 입력하세요:");
-    if (!reason) return;
-
-    try {
-      await adminHotelApi.rejectHotel(hotelId, reason);
-      fetchHotels();
-    } catch (err) {
-      alert(err.message || "거부에 실패했습니다.");
-    }
-  };
-
+  // 🚨 [수정] 호텔 삭제 (강제 삭제)
   const handleDelete = async (hotelId) => {
-    if (!confirm("정말 삭제하시겠습니까?")) return;
+    if (!window.confirm("정말 삭제하시겠습니까? (DB 및 이미지 영구 삭제)")) return;
 
     try {
       await adminHotelApi.deleteHotel(hotelId);
-      fetchHotels();
+      alert("호텔이 삭제되었습니다.");
+      fetchHotels(); // 목록 새로고침
     } catch (err) {
       alert(err.message || "삭제에 실패했습니다.");
     }
   };
+
+  // ❌ [삭제] handleApprove, handleReject는 백엔드에 기능 없으므로 제거함.
+  // 만약 AdminHotelTable 컴포넌트가 props를 필수(required)로 요구하면
+  // onApprove={() => {}} 이렇게 빈 함수라도 넘겨줘야 에러 안 남.
 
   if (loading) return <Loader fullScreen />;
   if (error) return <ErrorMessage message={error} onRetry={fetchHotels} />;
@@ -100,8 +86,9 @@ const AdminHotelListPage = () => {
 
       <AdminHotelTable
         hotels={hotels}
-        onApprove={handleApprove}
-        onReject={handleReject}
+        // 승인/거절은 기능 없으니까 빼거나 빈 함수 전달
+        onApprove={() => alert("호텔은 등록 즉시 승인됩니다.")} 
+        onReject={() => alert("기능 없음")}
         onDelete={handleDelete}
       />
 

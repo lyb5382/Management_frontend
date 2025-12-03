@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AdminHotelForm from "../../components/admin/hotels/AdminHotelForm";
-import { adminHotelApi } from "../../api/adminHotelApi";
+import adminHotelApi from "../../api/adminHotelApi";
 import Loader from "../../components/common/Loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
 

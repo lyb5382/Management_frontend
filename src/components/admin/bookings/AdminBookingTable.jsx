@@ -9,11 +9,14 @@ const STATUS_OPTIONS = [
   { value: "cancelled", label: "취소" },
 ];
 
+// (결제 상태는 Booking 모델에 없어서 일단 뺌. 필요하면 Payment API 따로 찔러야 함)
+/*
 const paymentStatusMap = {
   paid: "결제완료",
   pending: "결제대기",
   refunded: "환불완료",
 };
+*/
 
 const formatDate = (value) => {
   if (!value) return "-";
@@ -44,7 +47,7 @@ const AdminBookingTable = ({ bookings = [], onStatusChange, onCancel }) => {
           className="status-select"
           value={booking?.status || ""}
           onChange={(event) =>
-            onStatusChange?.(booking.id, event.target.value)
+            onStatusChange?.(booking._id, event.target.value)
           }
         >
           {STATUS_OPTIONS.map((option) => (
@@ -54,18 +57,21 @@ const AdminBookingTable = ({ bookings = [], onStatusChange, onCancel }) => {
           ))}
         </select>
 
-        <Link
-          to={`/admin/bookings/${booking?.id || ""}`}
+        {/* 🚨 [수정] 상세보기 링크 ID 수정 */}
+        {/* (관리자용 예약 상세 페이지가 없다면 이 버튼은 에러 날 수 있음. 일단 둠) */}
+        {/* <Link
+          to={`/admin/bookings/${booking?._id || ""}`} 
           className="btn btn-outline"
         >
           상세보기
         </Link>
+        */}
 
         <button
           type="button"
           className="btn btn-danger"
           disabled={booking?.status === "cancelled"}
-          onClick={() => onCancel?.(booking.id)}
+          onClick={() => onCancel?.(booking._id)}
         >
           예약취소
         </button>
@@ -79,45 +85,43 @@ const AdminBookingTable = ({ bookings = [], onStatusChange, onCancel }) => {
         <thead>
           <tr>
             <th>예약번호</th>
-            <th>호텔</th>
+            <th>호텔/객실</th>
             <th>고객</th>
             <th>체크인/아웃</th>
             <th>금액</th>
-            <th>예약 상태</th>
-            <th>결제 상태</th>
+            <th>상태</th>
             <th>액션</th>
           </tr>
         </thead>
         <tbody>
           {bookings.map((booking) => (
-            <tr key={booking.id || booking.code}>
-              <td>{booking?.code || `#${booking?.id}`}</td>
+            <tr key={booking._id}>
+              <td>
+                {/* ID가 너무 기니까 앞 8자리만 잘라서 보여줌 (선택) */}
+                <span title={booking._id}>#{booking._id.substring(0, 8)}</span>
+              </td>
               <td>
                 <div className="table-title">
-                  <div className="title">{booking?.hotelName || "-"}</div>
-                  {booking?.roomType && (
-                    <div className="subtitle">{booking.roomType}</div>
+                  <div className="title">{booking.hotel?.name || "-"}</div>
+                  {booking.room?.name && (
+                    <div className="subtitle">{booking.room.name}</div>
                   )}
                 </div>
               </td>
               <td>
                 <div className="table-title">
-                  <div className="title">{booking?.guestName || "-"}</div>
-                  {booking?.guestEmail && (
-                    <div className="subtitle">{booking.guestEmail}</div>
+                  <div className="title">{booking.user?.name || "-"}</div>
+                  {booking.user?.email && (
+                    <div className="subtitle">{booking.user.email}</div>
                   )}
                 </div>
               </td>
               <td>
-                {booking?.checkIn} ~ {booking?.checkOut}
+                {formatDate(booking.checkIn)} ~ {formatDate(booking.checkOut)}
               </td>
-              <td>{formatCurrency(booking?.totalAmount)}</td>
+              <td>{formatCurrency(booking.totalPrice)}</td>
               <td>
                 <StatusBadge status={booking?.status} type="booking" />
-              </td>
-              <td>
-                {paymentStatusMap[booking.paymentStatus] ||
-                  booking.paymentStatus}
               </td>
               <td>{renderActions(booking)}</td>
             </tr>

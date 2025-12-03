@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import AdminBookingFilter from "../../components/admin/bookings/AdminBookingFilter";
 import AdminBookingTable from "../../components/admin/bookings/AdminBookingTable";
 import Pagination from "../../components/common/Pagination";
-import { adminBookingApi } from "../../api/adminBookingApi";
+import adminBookingApi from "../../api/adminBookingApi";
 import Loader from "../../components/common/Loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
 

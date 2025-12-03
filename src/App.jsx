@@ -4,6 +4,7 @@ import adminRoutes from "./router/adminRoutes";
 import "./styles/index.scss";
 
 function App() {
+
   return (
     <BrowserRouter>
       <AdminAuthProvider>

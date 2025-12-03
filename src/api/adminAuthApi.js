@@ -1,39 +1,24 @@
-import axiosClient from "./axiosClient";
-import { mockAuthApi } from "./mockApi";
+import axiosInstance from "./axiosConfig";
 
-// Mock API 사용 여부 (개발 중에는 true로 설정)
-const USE_MOCK = true;
-
-export const adminAuthApi = {
-  // 로그인
+const adminAuthApi = {
+  // 2. 로그인 (URL은 딱 "/auth/login" 만 써야 됨)
   login: (credentials) => {
-    if (USE_MOCK) return mockAuthApi.login(credentials);
-    return axiosClient.post("/admin/auth/login", credentials);
+    // credentials = { email, password }
+    return axiosInstance.post("/auth/login", credentials);
   },
 
-  // 로그아웃
+  // 3. 로그아웃 (토큰만 지우면 됨)
   logout: () => {
-    if (USE_MOCK) return mockAuthApi.logout();
-    return axiosClient.post("/admin/auth/logout");
+    return new Promise((resolve) => {
+        localStorage.removeItem('accessToken');
+        resolve({ message: "로그아웃 성공" });
+    });
   },
 
-  // 내 정보 조회
-  getMyInfo: () => {
-    if (USE_MOCK) return mockAuthApi.getMyInfo();
-    return axiosClient.get("/admin/auth/me");
-  },
-
-  // 비밀번호 변경
-  changePassword: (data) => {
-    if (USE_MOCK) return mockAuthApi.changePassword(data);
-    return axiosClient.put("/admin/auth/password", data);
-  },
-
-  // 비밀번호 재설정 요청
-  forgotPassword: (email) => {
-    if (USE_MOCK) return mockAuthApi.forgotPassword(email);
-    return axiosClient.post("/admin/auth/forgot-password", { email });
-  },
+  // 4. 나머지는 에러 방지용 가짜 함수
+  getMyInfo: () => Promise.resolve({ data: {} }),
+  changePassword: () => Promise.resolve({}),
+  forgotPassword: () => Promise.resolve({}),
 };
 
 export default adminAuthApi;

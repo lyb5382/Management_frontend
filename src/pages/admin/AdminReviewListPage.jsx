@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import AdminReviewFilter from "../../components/admin/reviews/AdminReviewFilter";
 import AdminReviewTable from "../../components/admin/reviews/AdminReviewTable";
 import Pagination from "../../components/common/Pagination";
-import { adminReviewApi } from "../../api/adminReviewApi";
+import adminReviewApi from "../../api/adminReviewApi";
 import Loader from "../../components/common/Loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
 

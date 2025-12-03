@@ -1,38 +1,19 @@
-import axiosClient from "./axiosClient";
-import { mockStatsApi } from "./mockApi";
+import { getAdminStats } from "./index";
 
-const USE_MOCK = true;
-
-export const adminStatsApi = {
-  // 대시보드 통계 조회
-  getDashboardStats: () => {
-    if (USE_MOCK) return mockStatsApi.getDashboardStats();
-    return axiosClient.get("/admin/stats/dashboard");
+const adminStatsApi = {
+  // 1. 관리자 대시보드 통계 (매출, 예약수, 호텔수)
+  getDashboardStats: async () => {
+    // Mock 다 꺼져. 진짜 데이터 가져온다.
+    const response = await getAdminStats();
+    
+    // 백엔드 응답 구조: { revenue: 0, reservations: 0, hotels: 0 }
+    // 프론트가 원하는 구조랑 맞는지 확인하고 리턴
+    return response.data; 
   },
 
-  // 매출 통계 조회
-  getRevenueStats: (params) => {
-    if (USE_MOCK) return mockStatsApi.getRevenueStats(params);
-    return axiosClient.get("/admin/stats/revenue", { params });
-  },
-
-  // 예약 통계 조회
-  getBookingStats: (params) => {
-    if (USE_MOCK) return mockStatsApi.getBookingStats(params);
-    return axiosClient.get("/admin/stats/bookings", { params });
-  },
-
-  // 사용자 통계 조회
-  getUserStats: (params) => {
-    if (USE_MOCK) return mockStatsApi.getUserStats(params);
-    return axiosClient.get("/admin/stats/users", { params });
-  },
-
-  // 호텔 통계 조회
-  getHotelStats: (params) => {
-    if (USE_MOCK) return mockStatsApi.getHotelStats(params);
-    return axiosClient.get("/admin/stats/hotels", { params });
-  },
+  // 2. (혹시 다른 통계 함수가 더 있다면)
+  // getRevenueChart: ... -> 백엔드에 아직 없으면 빈 배열 리턴
+  getRevenueChart: () => Promise.resolve([]),
 };
 
 export default adminStatsApi;

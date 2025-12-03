@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AdminReviewDetail from "../../components/admin/reviews/AdminReviewDetail";
-import { adminReviewApi } from "../../api/adminReviewApi";
+import adminReviewApi from "../../api/adminReviewApi";
 import Loader from "../../components/common/Loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
 
