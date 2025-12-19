@@ -1,26 +1,27 @@
 import axios from "axios";
 
-// 🚨 [여기가 문제였음]
-// 니가 여기에 "VITE_API_BASE_URL=..." 이라는 글자를 넣었을 확률 10000%임.
-// 그냥 깔끔하게 주소만 딱 박아.
+// 🚨 주소 확실함? http인지 https인지 잘 봐. (지금은 http인 듯)
 const BASE_URL = 'http://dfasdfasd.store/api';
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
-    timeout: 10000,
     headers: {
         "Content-Type": "application/json",
     },
-    // 쿠키 안 쓰면 false로 해도 되는데, 일단 true 둬도 상관없음
-    withCredentials: true, 
+    // ❌ [삭제] 이거 지워버려! 쿠키 안 쓰잖아. 괜히 에러만 만듦.
+    // withCredentials: true, 
 });
 
-// 요청 인터셉터 (토큰 박기)
+// 요청 납치해서 토큰 박기
 axiosInstance.interceptors.request.use(
     (config) => {
-        // 아까 고친 "accessToken" 이름 확인!
         const token = localStorage.getItem("accessToken");
+
+        // 👇 [디버깅용] 콘솔창(F12)에 이거 뜨는지 확인해봐!
+        console.log("📡 API 요청 쏘는 중! 토큰 유무:", token ? "있음" : "없음");
+
         if (token) {
+            // "Bearer " 뒤에 띄어쓰기 한 칸 필수!
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
@@ -28,11 +29,11 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// 응답 인터셉터 (에러 처리)
+// 응답 인터셉터
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
-        // 에러 처리 로직은 일단 냅두자 (여긴 문제 없음)
+        console.error("🔥 API 에러 발생:", error.response?.status, error.message);
         return Promise.reject(error);
     }
 );
