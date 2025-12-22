@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "../../hooks/useAdminAuth";
 
 const AdminHeader = () => {
+  const userRole = localStorage.getItem('userRole');
   const navigate = useNavigate();
   const { adminInfo, logout } = useAdminAuth();
 
@@ -24,11 +25,11 @@ const AdminHeader = () => {
   return (
     <header className="admin-header">
       <div className="admin-header-inner">
-        <div className="header-left">
-          <h2>관리자 대시보드</h2>
+      <div className="header-left">
+            <h2>{userRole === 'business' ? '사장님 대시보드' : '관리자 대시보드'}</h2>
         </div>
         <div className="header-right">
-          <span>{adminInfo?.name || "Admin"}</span>
+          <span>{adminInfo?.name || (userRole === 'business' ? '사장님' : '관리자')}</span>
           <button onClick={handleLogout} className="btn btn-outline">
             로그아웃
           </button>

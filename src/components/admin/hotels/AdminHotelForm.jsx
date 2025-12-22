@@ -29,6 +29,7 @@ const APPROVAL_OPTIONS = [
 ];
 
 const AdminHotelForm = ({ hotel = null, onSubmit, onCancel }) => {
+  const userRole = localStorage.getItem('userRole');
   const [formData, setFormData] = useState({ ...DEFAULT_FORM, ...(hotel || {}) });
 
   useEffect(() => {
@@ -216,21 +217,30 @@ const AdminHotelForm = ({ hotel = null, onSubmit, onCancel }) => {
         </select>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="approvalStatus">승인 상태</label>
-        <select
-          id="approvalStatus"
-          name="approvalStatus"
-          value={formData.approvalStatus}
-          onChange={handleChange}
-        >
-          {APPROVAL_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      {userRole === 'admin' ? (
+        <div className="form-group">
+          <label className="text-red-600 font-bold">승인 상태 (관리자 전용)</label>
+          <select
+            name="approvalStatus"
+            value={formData.approvalStatus}
+            onChange={handleChange}
+            className="border-red-300 focus:border-red-500" // 관리자용 티내기
+          >
+            <option value="pending">⏳ 승인 대기</option>
+            <option value="approved">✅ 승인됨</option>
+            <option value="rejected">❌ 거절됨</option>
+          </select>
+        </div>
+      ) : (
+        // 💡 사장님한테는 '수정 불가' 텍스트로만 보여주거나, 아예 숨겨도 됨
+        <div className="form-group">
+          <label>승인 상태</label>
+          <div className="p-3 bg-gray-100 rounded text-gray-500 font-bold">
+            {formData.approvalStatus === 'pending' ? '⏳ 관리자 승인 대기 중' :
+              formData.approvalStatus === 'approved' ? '✅ 승인 완료' : '❌ 승인 거절됨'}
+          </div>
+        </div>
+      )}
 
       <div className="form-actions">
         <button type="button" className="btn btn-outline" onClick={handleReset}>
