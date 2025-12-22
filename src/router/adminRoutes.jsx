@@ -18,6 +18,10 @@ import AdminCouponEditPage from "../pages/admin/AdminCouponEditPage";
 import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
 import AdminMyProfilePage from "../pages/admin/AdminMyProfilePage";
 import AdminAuditLogPage from "../pages/admin/audit/AdminAuditLogPage";
+import NoticeListPage from '../pages/common/NoticeListPage';
+import NoticeDetailPage from '../pages/common/NoticeDetailPage';
+import NoticeWritePage from '../pages/common/NoticeWritePage';
+import NoticeEditPage from "../pages/common/NoticeEditPage";
 
 const adminRoutes = [
   {
@@ -49,7 +53,11 @@ const adminRoutes = [
       { path: "coupons", element: <AdminCouponListPage /> },
       { path: "coupons/new", element: <AdminCouponCreatePage /> },
       { path: "coupons/:couponId/edit", element: <AdminCouponEditPage /> },
-      { path: "audit-logs", element: <AdminAuditLogPage /> }, // 감사 로그
+      { path: "audit-logs", element: <AdminAuditLogPage /> },
+      { path: "notices", element: <NoticeListPage /> },
+      { path: "notices/new", element: <NoticeWritePage /> },
+      { path: "notices/:noticeId/edit", element: <NoticeEditPage /> },
+      { path: "notices/:noticeId", element: <NoticeDetailPage /> },
       { path: "settings", element: <AdminSettingsPage /> },
       { path: "me", element: <AdminMyProfilePage /> },
     ],

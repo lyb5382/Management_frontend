@@ -59,7 +59,7 @@ const AdminLoginPage = () => {
           <p style={{ fontWeight: "bold", marginBottom: "5px" }}>📌 테스트 계정 정보</p>
           <div style={{ marginBottom: "8px" }}>
             <span style={{ fontWeight: "bold", color: "#d32f2f" }}>[관리자]</span><br />
-            ID: admin@hotelhub.com <br />
+            ID: admin@hotel.com <br />
             PW: admin1234
           </div>
           <div>

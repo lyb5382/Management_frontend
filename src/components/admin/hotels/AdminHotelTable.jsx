@@ -1,36 +1,50 @@
 import { Link } from "react-router-dom";
 import EmptyState from "../../common/EmptyState";
-import StatusBadge from "../../common/StatusBadge";
 
-// 날짜 포맷 함수
-const formatDate = (value) => {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
-  return date.toLocaleDateString("ko-KR");
-};
+const AdminHotelTable = ({ hotels = [], onDelete, onApprove, onReject }) => {
+  // 🕵️‍♂️ 1. 신분 확인
+  const userRole = localStorage.getItem('userRole');
 
-// 금액 포맷 함수 (필요하면 쓰고, 없으면 걍 둠)
-const formatCurrency = (value) => {
-  if (value === undefined || value === null) return "-";
-  return `${Number(value).toLocaleString()}원`;
-};
+  // 🚦 2. [핵심] 접속한 놈에 따라 '수정' 버튼 눌렀을 때 가는 길을 갈라준다!
+  // 사장님(business)이면 -> /owner/my-hotel/...
+  // 관리자(admin)면 -> /admin/hotels/...
+  const linkPrefix = userRole === 'business' ? '/owner/my-hotel' : '/admin/hotels';
 
-const AdminHotelTable = ({ hotels = [], onDelete }) => {
+  // 데이터 없으면 텅~ 보여주기
   if (!hotels.length) {
-    return (
-      <EmptyState
-        icon="🏨"
-        message="등록된 호텔이 없습니다."
-      />
-    );
+    return <EmptyState icon="🏨" message="등록된 호텔이 없습니다." />;
   }
 
   const renderActions = (hotel) => {
     return (
-      <div className="table-actions">
+      <div className="table-actions" style={{ display: 'flex', gap: '5px' }}>
+        {/* ⭐ 관리자일 때만 승인/거부 버튼 노출 */}
+        {userRole === 'admin' && (
+          <>
+            {hotel.approvalStatus === 'pending' && (
+              <>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => onApprove?.(hotel._id)}
+                  style={{ backgroundColor: '#4f46e5', color: 'white' }}
+                >
+                  승인
+                </button>
+                <button
+                  className="btn btn-outline"
+                  onClick={() => onReject?.(hotel._id)}
+                  style={{ borderColor: '#ef4444', color: '#ef4444' }}
+                >
+                  거부
+                </button>
+              </>
+            )}
+          </>
+        )}
+
+        {/* 👇 [수정] 여기가 하이라이트! 아까 만든 linkPrefix 변수 사용해서 주소 동적 생성 */}
         <Link
-          to={`/admin/hotels/${hotel._id}/edit`} // 🚨 id -> _id 로 변경
+          to={`${linkPrefix}/${hotel._id}/edit`}
           className="btn btn-outline"
         >
           수정
@@ -39,7 +53,7 @@ const AdminHotelTable = ({ hotels = [], onDelete }) => {
         <button
           type="button"
           className="btn btn-outline"
-          onClick={() => onDelete?.(hotel._id)} // 🚨 id -> _id 로 변경
+          onClick={() => onDelete?.(hotel._id)}
         >
           삭제
         </button>
@@ -53,10 +67,9 @@ const AdminHotelTable = ({ hotels = [], onDelete }) => {
         <thead>
           <tr>
             <th>호텔명</th>
+            <th>승인상태</th> {/* 👈 상태 확인용 컬럼 */}
             <th>사업자</th>
             <th>주소</th>
-            <th>등급</th>
-            <th>등록일</th>
             <th>액션</th>
           </tr>
         </thead>
@@ -64,24 +77,17 @@ const AdminHotelTable = ({ hotels = [], onDelete }) => {
           {hotels.map((hotel) => (
             <tr key={hotel._id}>
               <td>
-                <div className="table-title">
-                  <div className="title">{hotel.name || "-"}</div>
-                  {hotel.description && (
-                    <div className="subtitle" style={{fontSize: '12px', color: '#888'}}>
-                      {hotel.description.substring(0, 20)}...
-                    </div>
-                  )}
-                </div>
+                <div style={{ fontWeight: 'bold' }}>{hotel.name || "-"}</div>
               </td>
-              
-              <td>{hotel.business?.business_name || hotel.business || "-"}</td>
-              
+              <td>
+                {/* 🏷️ 상태 배지 (pending: 노랑, approved: 초록, rejected: 빨강) */}
+                <span className={`badge status-${hotel.approvalStatus}`}>
+                  {hotel.approvalStatus === 'pending' ? '⏳ 대기' :
+                    hotel.approvalStatus === 'approved' ? '✅ 승인' : '❌ 거부'}
+                </span>
+              </td>
+              <td>{hotel.business?.business_name || "-"}</td>
               <td>{hotel.address || "-"}</td>
-              
-              <td>{hotel.star_rating ? `⭐ ${hotel.star_rating}` : "-"}</td>
-              
-              <td>{formatDate(hotel.createdAt)}</td>
-              
               <td>{renderActions(hotel)}</td>
             </tr>
           ))}

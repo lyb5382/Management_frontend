@@ -5,10 +5,11 @@ import AdminHotelTable from "../../components/admin/hotels/AdminHotelTable";
 import Pagination from "../../components/common/Pagination";
 import Loader from "../../components/common/Loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
-import adminHotelApi from "../../api/adminHotelApi"; 
+import adminHotelApi from "../../api/adminHotelApi";
 
 const AdminHotelListPage = () => {
   const navigate = useNavigate();
+  const userRole = localStorage.getItem('userRole');
   const [hotels, setHotels] = useState([]);
   const [filters, setFilters] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,13 +24,20 @@ const AdminHotelListPage = () => {
   const fetchHotels = async () => {
     try {
       setLoading(true);
-      const data = await adminHotelApi.getHotels({
+      // 🕵️‍♂️ api에서 받아온 결과물을 res라는 이름으로 받자
+      const res = await adminHotelApi.getHotels({
         ...filters,
         page: currentPage,
       });
-      setHotels(data.hotels || []);
-      setTotalPages(data.totalPages || 1);
+
+      // 👇 [디버깅] 이제 에러 안 나게 로그 찍어보자
+      console.log("🏨 [최종 데이터] 화면에 뿌릴 배열:", res.hotels);
+
+      // 서버가 배열로 주든 객체로 주든 res.hotels에 담기게 해놨으니까 안심해!
+      setHotels(res.hotels || []);
+      setTotalPages(res.totalPages || 1);
     } catch (err) {
+      console.error("❌ 로딩 실패:", err);
       setError(err.message || "데이터를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
@@ -59,9 +67,31 @@ const AdminHotelListPage = () => {
     }
   };
 
-  // ❌ [삭제] handleApprove, handleReject는 백엔드에 기능 없으므로 제거함.
-  // 만약 AdminHotelTable 컴포넌트가 props를 필수(required)로 요구하면
-  // onApprove={() => {}} 이렇게 빈 함수라도 넘겨줘야 에러 안 남.
+  // ✅ 호텔 승인 처리
+  const handleApprove = async (hotelId) => {
+    if (!window.confirm("이 호텔을 승인하시겠습니까?")) return;
+    try {
+      // 🚨 adminHotelApi에 updateStatus 같은 함수가 있다고 가정 (없으면 만들어야함)
+      await adminHotelApi.updateHotelStatus(hotelId, 'approved');
+      alert("승인 완료! 👌");
+      fetchHotels();
+    } catch (err) {
+      alert(err.message || "승인 처리 실패");
+    }
+  };
+
+  // ❌ 호텔 거부 처리
+  const handleReject = async (hotelId) => {
+    const reason = window.prompt("거부 사유를 입력하세요:");
+    if (reason === null) return;
+    try {
+      await adminHotelApi.updateHotelStatus(hotelId, 'rejected', reason);
+      alert("거부 처리됨.");
+      fetchHotels();
+    } catch (err) {
+      alert(err.message || "거부 처리 실패");
+    }
+  };
 
   if (loading) return <Loader fullScreen />;
   if (error) return <ErrorMessage message={error} onRetry={fetchHotels} />;
@@ -70,12 +100,14 @@ const AdminHotelListPage = () => {
     <div className="admin-hotel-list-page">
       <div className="page-header">
         <h1>호텔 관리</h1>
-        <button
-          onClick={() => navigate("/admin/hotels/new")}
-          className="btn btn-primary"
-        >
-          호텔 등록
-        </button>
+        {userRole === 'business' && (
+          <button
+            onClick={() => navigate("/owner/my-hotel/new")}
+            className="btn btn-primary"
+          >
+            호텔 등록
+          </button>
+        )}
       </div>
 
       <AdminHotelFilter
@@ -86,9 +118,8 @@ const AdminHotelListPage = () => {
 
       <AdminHotelTable
         hotels={hotels}
-        // 승인/거절은 기능 없으니까 빼거나 빈 함수 전달
-        onApprove={() => alert("호텔은 등록 즉시 승인됩니다.")} 
-        onReject={() => alert("기능 없음")}
+        onApprove={handleApprove} // 👈 함수 연결
+        onReject={handleReject}   // 👈 함수 연결
         onDelete={handleDelete}
       />
 
